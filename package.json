@@ -1,0 +1,76 @@
+{
+  "name": "rosettanet-get-starknet-impl",
+  "version": "1.0.0",
+  "author": "Digine-Labs",
+  "license": "MIT",
+  "description": "Implementation of RosettaNet for get-starknet",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Boreas09/Rosettanet-get-starknet-impl"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "browser": "dist/index.global.js",
+  "jsdelivr": "dist/index.global.js",
+  "unpkg": "dist/index.global.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "CHANGELOG.md",
+    "dist"
+  ],
+  "scripts": {
+    "prepare": "npm run build && husky",
+    "build": "tsup && npm run build:esm && npm run build:iife && npm run build:dts",
+    "build:esm": "tsup --clean false --format esm --platform node",
+    "build:iife": "tsup --clean false --format iife --platform browser",
+    "build:dts": "tsup --clean false --dts-only",
+    "lint": "eslint",
+    "format": "prettier --write 'src/**/*.{ts,tsx,json,md}'",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@starknet-io/types-js": "^0.8.1",
+    "@wallet-standard/base": "^1.1.0",
+    "@wallet-standard/features": "^1.1.0",
+    "mipd": "^0.0.7"
+  },
+  "keywords": [
+    "rosettanet",
+    "javascript",
+    "library",
+    "starknet",
+    "web3",
+    "etherjs",
+    "wagmi",
+    "starknetjs"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "^19.7.1",
+    "@commitlint/config-conventional": "^19.7.1",
+    "@jest/globals": "^29.7.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "github:semantic-release/exec",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.1",
+    "@semantic-release/npm": "^12.0.1",
+    "@types/jest": "^29.5.14",
+    "@typescript-eslint/eslint-plugin": "^8.24.1",
+    "@typescript-eslint/parser": "^8.24.1",
+    "eslint": "^9.20.1",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "husky": "^9.1.7",
+    "prettier": "^3.5.1",
+    "semantic-release": "^24.2.3",
+    "ts-jest": "^29.2.5",
+    "tsup": "^8.3.6"
+  }
+}
