@@ -1,14 +1,15 @@
 import { StarknetWindowObject } from '@starknet-io/types-js';
 import { createStore } from 'mipd';
+import { EthereumRPCParams } from '../types';
 
 interface EthereumProvider {
-  request: (args: { method: string; params?: any[] }) => Promise<any>;
+  request: (args: EthereumRPCParams) => Promise<any>;
   id: string;
   name: string;
   icon: string;
   version: string;
-  on: (eventName: string, listener: (...args: any[]) => void) => void;
-  off: (eventName: string, listener: (...args: any[]) => void) => void;
+  on: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
+  off: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
 }
 
 export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowObject[]> {
@@ -43,7 +44,7 @@ export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowO
 
 const ETHEREUM_WALLET_KEYS = ['sendAsync', 'send', 'request'];
 
-function isEthereumWindowObject(wallet: unknown): wallet is EthereumProvider {
+export function isEthereumWindowObject(wallet: unknown): wallet is EthereumProvider {
   if (typeof wallet !== 'object' || wallet === null) return false;
   return ETHEREUM_WALLET_KEYS.every((key) => key in wallet);
 }

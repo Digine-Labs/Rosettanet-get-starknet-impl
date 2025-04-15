@@ -10,6 +10,7 @@ import {
   type StandardEventsFeature,
   type StandardEventsOnMethod,
 } from '@wallet-standard/features';
+import { EthereumRPCParams } from '../types';
 
 // Type definitions
 type StandardEventsNames = 'change' | 'connect' | 'disconnect' | 'error';
@@ -18,7 +19,7 @@ interface StandardEventsListeners {
   change: (data: { accounts: WalletAccount[] }) => void;
   connect: () => void;
   disconnect: () => void;
-  error: (error: any) => void;
+  error: (error: Error) => void;
 }
 
 const EthereumWalletApi = 'ethereum:wallet';
@@ -27,13 +28,13 @@ const EthereumWalletApi = 'ethereum:wallet';
 type EthereumChain = `eip155:${string}`;
 
 interface EthereumProvider {
-  request: (args: { method: string; params?: any[] }) => Promise<any>;
+  request: (args: EthereumRPCParams) => Promise<any>;
   id: string;
   name: string;
   icon: string;
   version: string;
-  on: (eventName: string, listener: (...args: any[]) => void) => void;
-  off: (eventName: string, listener: (...args: any[]) => void) => void;
+  on: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
+  off: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
 }
 
 export type EthereumFeatures = EthereumWalletRequestFeature &
@@ -45,7 +46,7 @@ export type WalletWithEthereumFeatures = WalletWithFeatures<EthereumFeatures>;
 export type EthereumWalletRequestFeature = {
   [EthereumWalletApi]: {
     version: '1.0.0';
-    request: (args: { method: string; params?: any[] }) => Promise<any>;
+    request:  (args: EthereumRPCParams) => Promise<any>;
   };
 };
 
@@ -58,8 +59,20 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
 
   constructor(private readonly injected: EthereumProvider) {
     // Subscribe to EVM wallet events
-    this.injected.on('accountsChanged', this.#onAccountsChanged.bind(this));
-    this.injected.on('networkChanged', this.#onNetworkChanged.bind(this));
+    this.injected.on('accountsChanged', (accounts: unknown) => {
+      if (Array.isArray(accounts) && accounts.every(a => typeof a === 'string')) {
+        this.#onAccountsChanged(accounts);
+      } else {
+        console.warn('Unexpected accounts type:', accounts);
+      }
+    });
+    this.injected.on('networkChanged', (chainIdHex: unknown) => {
+      if (typeof chainIdHex === 'string') {
+        this.#onNetworkChanged(chainIdHex);
+      } else {
+        console.warn('Unexpected chainIdHex type:', chainIdHex);
+      }
+    });
     this.injected.on('disconnect', this.#onDisconnect.bind(this));
   }
 
