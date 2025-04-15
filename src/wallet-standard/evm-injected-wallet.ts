@@ -46,7 +46,7 @@ export type WalletWithEthereumFeatures = WalletWithFeatures<EthereumFeatures>;
 export type EthereumWalletRequestFeature = {
   [EthereumWalletApi]: {
     version: '1.0.0';
-    request:  (args: EthereumRPCParams) => Promise<any>;
+    request: (args: EthereumRPCParams) => Promise<any>;
   };
 };
 
@@ -60,7 +60,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
   constructor(private readonly injected: EthereumProvider) {
     // Subscribe to EVM wallet events
     this.injected.on('accountsChanged', (accounts: unknown) => {
-      if (Array.isArray(accounts) && accounts.every(a => typeof a === 'string')) {
+      if (Array.isArray(accounts) && accounts.every((a) => typeof a === 'string')) {
         this.#onAccountsChanged(accounts);
       } else {
         console.warn('Unexpected accounts type:', accounts);
