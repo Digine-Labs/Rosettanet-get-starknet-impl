@@ -245,6 +245,8 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
         method: 'eth_chainId',
       });
 
+      console.log('1', chainIdHex);
+
       // Inline check if chainIdHex is an RPCError
       if (
         chainIdHex &&
@@ -252,19 +254,23 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
         'code' in chainIdHex &&
         'message' in chainIdHex
       ) {
+        console.log('2', chainIdHex);
         console.error('RPC Error:', chainIdHex);
         throw new Error(`RPC Error: ${chainIdHex.message}`);
       }
 
       // Convert hex to decimal
       if (typeof chainIdHex === 'object' && 'result' in chainIdHex) {
+        console.log('3', chainIdHex);
         const chainId = Number.parseInt(chainIdHex.result, 16).toString();
         const chain = `eip155:${chainId}` as EthereumChain;
         return chain;
       } else {
+        console.log('4', chainIdHex);
         throw new Error('Invalid Ethereum chain');
       }
     } catch (error) {
+      console.log('5');
       console.error('Failed to get chain ID:', error);
       throw new Error('Invalid Ethereum chain');
     }
