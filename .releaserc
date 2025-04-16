@@ -27,5 +27,5 @@
       "cmd": "npm run build"
     }
   ],
-  "repositoryUrl": "https://github.com/Digine-Labs/rosettanetjs"
+  "repositoryUrl": "https://github.com/Digine-Labs/Rosettanet-get-starknet-impl"
 }
