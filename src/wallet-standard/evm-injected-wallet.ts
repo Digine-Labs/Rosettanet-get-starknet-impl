@@ -49,7 +49,6 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
 
   constructor(private readonly injected: EthereumProvider) {
     // Subscribe to EVM wallet events
-    console.log(injected);
     this.injected.on('accountsChanged', (accounts: unknown) => {
       if (Array.isArray(accounts) && accounts.every((a) => typeof a === 'string')) {
         this.#onAccountsChanged(accounts);
@@ -72,7 +71,6 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
   }
 
   get name() {
-    console.log(this.injected.name);
     return this.injected.name;
   }
 

@@ -68,7 +68,6 @@ var EthereumWalletApi = "ethereum:wallet";
 var EthereumInjectedWallet = class {
   constructor(injected) {
     this.injected = injected;
-    console.log(injected);
     this.injected.on("accountsChanged", (accounts) => {
       if (Array.isArray(accounts) && accounts.every((a) => typeof a === "string")) {
         this.#onAccountsChanged(accounts);
@@ -76,9 +75,9 @@ var EthereumInjectedWallet = class {
         console.warn("Unexpected accounts type:", accounts);
       }
     });
-    this.injected.on("networkChanged", (chainIdHex) => {
+    this.injected.on("chainChanged", (chainIdHex) => {
       if (typeof chainIdHex === "string") {
-        this.#onNetworkChanged(chainIdHex);
+        this.#onChainChanged(chainIdHex);
       } else {
         console.warn("Unexpected chainIdHex type:", chainIdHex);
       }
@@ -94,7 +93,6 @@ var EthereumInjectedWallet = class {
     return "1.0.0";
   }
   get name() {
-    console.log(this.injected.name);
     return this.injected.name;
   }
   get icon() {
@@ -202,7 +200,7 @@ var EthereumInjectedWallet = class {
       this.#emit("change", { accounts: this.accounts });
     }
   }
-  #onNetworkChanged(chainIdHex) {
+  #onChainChanged(chainIdHex) {
     if (!chainIdHex || !this.#account) {
       this.#disconnected();
       return;
