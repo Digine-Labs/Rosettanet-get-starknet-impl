@@ -62,6 +62,7 @@ var EthereumInjectedWallet = class {
     return "1.0.0";
   }
   get name() {
+    console.log(this.injected.name);
     return this.injected.name;
   }
   get icon() {
