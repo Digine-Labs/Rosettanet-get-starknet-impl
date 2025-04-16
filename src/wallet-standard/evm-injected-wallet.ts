@@ -10,7 +10,7 @@ import {
   type StandardEventsFeature,
   type StandardEventsOnMethod,
 } from '@wallet-standard/features';
-import { EthereumRPCParams } from '../types';
+import { EthereumRPCParams, EthereumProvider, RPCError, RPCResponse } from '../types';
 
 // Type definitions
 type StandardEventsNames = 'change' | 'connect' | 'disconnect' | 'error';
@@ -27,16 +27,6 @@ const EthereumWalletApi = 'ethereum:wallet';
 // Ethereum specific types
 type EthereumChain = `eip155:${string}`;
 
-interface EthereumProvider {
-  request: (args: EthereumRPCParams) => Promise<any>;
-  id: string;
-  name: string;
-  icon: string;
-  version: string;
-  on: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
-  off: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
-}
-
 export type EthereumFeatures = EthereumWalletRequestFeature &
   StandardConnectFeature &
   StandardDisconnectFeature &
@@ -46,7 +36,7 @@ export type WalletWithEthereumFeatures = WalletWithFeatures<EthereumFeatures>;
 export type EthereumWalletRequestFeature = {
   [EthereumWalletApi]: {
     version: '1.0.0';
-    request: (args: EthereumRPCParams) => Promise<any>;
+    request: (args: EthereumRPCParams) => Promise<RPCError | RPCResponse>;
   };
 };
 
@@ -130,6 +120,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
     return [];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   #connect: StandardConnectMethod = async ({ silent } = {}) => {
     if (!this.#account) {
       try {
@@ -182,6 +173,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
     if (!this.#listeners[event]) return;
 
     for (const listener of this.#listeners[event] as StandardEventsListeners[E][]) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
       (listener as Function).apply(null, args);
     }
   }
@@ -189,7 +181,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
   #off<E extends StandardEventsNames>(event: E, listener: StandardEventsListeners[E]): void {
     const arr = this.#listeners[event] as StandardEventsListeners[E][] | undefined;
     if (!arr) return;
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.#listeners[event] = arr.filter((l) => l !== listener) as any;
   }
 
@@ -243,7 +235,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
     this.#disconnected();
   }
 
-  #request(args: { method: string; params?: any[] }): Promise<any> {
+  #request(args: EthereumRPCParams): Promise<RPCError | RPCResponse> {
     return this.injected.request(args);
   }
 
@@ -253,11 +245,25 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
         method: 'eth_chainId',
       });
 
-      // Convert hex to decimal
-      const chainId = Number.parseInt(chainIdHex, 16).toString();
-      const chain = `eip155:${chainId}` as EthereumChain;
+      // Inline check if chainIdHex is an RPCError
+      if (
+        chainIdHex &&
+        typeof chainIdHex === 'object' &&
+        'code' in chainIdHex &&
+        'message' in chainIdHex
+      ) {
+        console.error('RPC Error:', chainIdHex);
+        throw new Error(`RPC Error: ${chainIdHex.message}`);
+      }
 
-      return chain;
+      // Convert hex to decimal
+      if (typeof chainIdHex === 'object' && 'result' in chainIdHex) {
+        const chainId = Number.parseInt(chainIdHex.result, 16).toString();
+        const chain = `eip155:${chainId}` as EthereumChain;
+        return chain;
+      } else {
+        throw new Error('Invalid Ethereum chain');
+      }
     } catch (error) {
       console.error('Failed to get chain ID:', error);
       throw new Error('Invalid Ethereum chain');

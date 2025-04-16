@@ -1,16 +1,6 @@
 import { StarknetWindowObject } from '@starknet-io/types-js';
 import { createStore } from 'mipd';
-import { EthereumRPCParams } from '../types';
-
-interface EthereumProvider {
-  request: (args: EthereumRPCParams) => Promise<any>;
-  id: string;
-  name: string;
-  icon: string;
-  version: string;
-  on: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
-  off: <T extends string>(eventName: T, listener: (...args: unknown[]) => void) => void;
-}
+import { EthereumProvider } from '../types';
 
 export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowObject[]> {
   let starknetWallets = [];
