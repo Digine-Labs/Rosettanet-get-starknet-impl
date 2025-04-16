@@ -36,6 +36,7 @@ export type WalletWithEthereumFeatures = WalletWithFeatures<EthereumFeatures>;
 export type EthereumWalletRequestFeature = {
   [EthereumWalletApi]: {
     version: '1.0.0';
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
     request: (args: EthereumRPCParams) => Promise<any>;
   };
 };
@@ -234,7 +235,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
   #onDisconnect() {
     this.#disconnected();
   }
-
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   #request(args: EthereumRPCParams): Promise<any> {
     return this.injected.request(args);
   }

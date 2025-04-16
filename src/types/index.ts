@@ -31,6 +31,7 @@ interface EthereumRPCRequestBase {
 }
 
 export interface EthereumProvider {
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   request(args: EthereumRPCParams): Promise<any>;
   id: string;
   name: string;
