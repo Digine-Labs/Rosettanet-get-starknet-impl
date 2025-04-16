@@ -72,6 +72,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
   }
 
   get name() {
+    console.log(this.injected.name);
     return this.injected.name;
   }
 
