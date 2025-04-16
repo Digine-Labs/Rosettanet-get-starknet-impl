@@ -29,9 +29,9 @@
   "scripts": {
     "prepare": "npm run build && husky",
     "build": "tsup && npm run build:esm && npm run build:iife && npm run build:dts",
-    "build:esm": "tsup --clean false --format esm --platform node",
-    "build:iife": "tsup --clean false --format iife --platform browser",
-    "build:dts": "tsup --clean false --dts-only",
+    "build:esm": "tsup --clean false --format esm --platform node --keep-names",
+    "build:iife": "tsup --clean false --format iife --platform browser --keep-names",
+    "build:dts": "tsup --clean false --dts-only --keep-names",
     "lint": "eslint",
     "format": "prettier --write 'src/**/*.{ts,tsx,json,md}'",
     "test": "jest"
