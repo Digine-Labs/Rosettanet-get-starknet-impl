@@ -30,26 +30,8 @@ interface EthereumRPCRequestBase {
   params?: unknown[];
 }
 
-export interface RPCError {
-  id: number;
-  jsonrpc: string;
-  error: {
-    code: number;
-    message: string;
-    data?: string | object | string[] | object[];
-  };
-}
-
-export interface RPCResponse {
-  jsonrpc: string;
-  id: string | number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result: any;
-}
-
 export interface EthereumProvider {
-  request(args: { method: 'eth_requestAccounts'; params?: [] }): Promise<string[]>;
-  request(args: EthereumRPCParams): Promise<RPCResponse | RPCError>;
+  request(args: EthereumRPCParams): Promise<any>;
   id: string;
   name: string;
   icon: string;

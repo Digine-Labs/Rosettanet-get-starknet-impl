@@ -30,26 +30,8 @@ interface EthereumRPCRequestBase {
     method: string;
     params?: unknown[];
 }
-interface RPCError {
-    id: number;
-    jsonrpc: string;
-    error: {
-        code: number;
-        message: string;
-        data?: string | object | string[] | object[];
-    };
-}
-interface RPCResponse {
-    jsonrpc: string;
-    id: string | number;
-    result: any;
-}
 interface EthereumProvider {
-    request(args: {
-        method: 'eth_requestAccounts';
-        params?: [];
-    }): Promise<string[]>;
-    request(args: EthereumRPCParams): Promise<RPCResponse | RPCError>;
+    request(args: EthereumRPCParams): Promise<any>;
     id: string;
     name: string;
     icon: string;
@@ -102,7 +84,7 @@ type WalletWithEthereumFeatures = WalletWithFeatures<EthereumFeatures>;
 type EthereumWalletRequestFeature = {
     [EthereumWalletApi]: {
         version: '1.0.0';
-        request: (args: EthereumRPCParams) => Promise<RPCError | RPCResponse>;
+        request: (args: EthereumRPCParams) => Promise<any>;
     };
 };
 /**
@@ -120,4 +102,4 @@ declare class EthereumInjectedWallet implements WalletWithEthereumFeatures {
     get accounts(): WalletAccount[];
 }
 
-export { type EthereumFeatures, EthereumInjectedWallet, type EthereumProvider, type EthereumRPCParams, type EthereumWalletRequestFeature, EvmWindowObjectWithStarknetKeys, type RPCError, type RPCResponse, type WalletWithEthereumFeatures, isEthereumWindowObject };
+export { type EthereumFeatures, EthereumInjectedWallet, type EthereumProvider, type EthereumRPCParams, type EthereumWalletRequestFeature, EvmWindowObjectWithStarknetKeys, type WalletWithEthereumFeatures, isEthereumWindowObject };
