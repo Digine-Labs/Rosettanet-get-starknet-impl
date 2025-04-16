@@ -21,7 +21,9 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   EthereumInjectedWallet: () => EthereumInjectedWallet,
+  EthereumWalletApi: () => EthereumWalletApi,
   EvmWindowObjectWithStarknetKeys: () => EvmWindowObjectWithStarknetKeys,
+  isEVMWallet: () => isEVMWallet,
   isEthereumWindowObject: () => isEthereumWindowObject
 });
 module.exports = __toCommonJS(index_exports);
@@ -227,10 +229,25 @@ var EthereumInjectedWallet = class {
     }
   }
 };
+
+// src/wallet-standard/features.ts
+var import_features2 = require("@wallet-standard/features");
+var RequiredEthereumFeatures = [
+  EthereumWalletApi,
+  import_features2.StandardConnect,
+  import_features2.StandardDisconnect,
+  import_features2.StandardEvents
+];
+function isEVMWallet(wallet) {
+  const result = RequiredEthereumFeatures.every((feature) => feature in wallet.features);
+  return result;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   EthereumInjectedWallet,
+  EthereumWalletApi,
   EvmWindowObjectWithStarknetKeys,
+  isEVMWallet,
   isEthereumWindowObject
 });
 //# sourceMappingURL=index.cjs.map

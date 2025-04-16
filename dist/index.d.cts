@@ -102,4 +102,6 @@ declare class EthereumInjectedWallet implements WalletWithEthereumFeatures {
     get accounts(): WalletAccount[];
 }
 
-export { type EthereumFeatures, EthereumInjectedWallet, type EthereumProvider, type EthereumRPCParams, type EthereumWalletRequestFeature, EvmWindowObjectWithStarknetKeys, type WalletWithEthereumFeatures, isEthereumWindowObject };
+declare function isEVMWallet(wallet: Wallet): wallet is WalletWithEthereumFeatures;
+
+export { type EthereumFeatures, EthereumInjectedWallet, type EthereumProvider, type EthereumRPCParams, EthereumWalletApi, type EthereumWalletRequestFeature, EvmWindowObjectWithStarknetKeys, type WalletWithEthereumFeatures, isEVMWallet, isEthereumWindowObject };

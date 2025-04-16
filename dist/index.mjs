@@ -203,9 +203,24 @@ var EthereumInjectedWallet = class {
     }
   }
 };
+
+// src/wallet-standard/features.ts
+import { StandardConnect as StandardConnect2, StandardDisconnect as StandardDisconnect2, StandardEvents as StandardEvents2 } from "@wallet-standard/features";
+var RequiredEthereumFeatures = [
+  EthereumWalletApi,
+  StandardConnect2,
+  StandardDisconnect2,
+  StandardEvents2
+];
+function isEVMWallet(wallet) {
+  const result = RequiredEthereumFeatures.every((feature) => feature in wallet.features);
+  return result;
+}
 export {
   EthereumInjectedWallet,
+  EthereumWalletApi,
   EvmWindowObjectWithStarknetKeys,
+  isEVMWallet,
   isEthereumWindowObject
 };
 //# sourceMappingURL=index.mjs.map

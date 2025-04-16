@@ -22,7 +22,7 @@ interface StandardEventsListeners {
   error: (error: Error) => void;
 }
 
-const EthereumWalletApi = 'ethereum:wallet';
+export const EthereumWalletApi = 'ethereum:wallet';
 
 // Ethereum specific types
 type EthereumChain = `eip155:${string}`;

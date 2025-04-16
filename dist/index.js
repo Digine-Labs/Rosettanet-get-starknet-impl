@@ -262,5 +262,17 @@
       }
     }
   };
+
+  // src/wallet-standard/features.ts
+  var RequiredEthereumFeatures = [
+    EthereumWalletApi,
+    StandardConnect,
+    StandardDisconnect,
+    StandardEvents
+  ];
+  function isEVMWallet(wallet) {
+    const result = RequiredEthereumFeatures.every((feature) => feature in wallet.features);
+    return result;
+  }
 })();
 //# sourceMappingURL=index.js.map
