@@ -63,6 +63,7 @@ var EthereumWalletApi = "ethereum:wallet";
 var EthereumInjectedWallet = class {
   constructor(injected) {
     this.injected = injected;
+    console.log(injected);
     this.injected.on("accountsChanged", (accounts) => {
       if (Array.isArray(accounts) && accounts.every((a) => typeof a === "string")) {
         this.#onAccountsChanged(accounts);
