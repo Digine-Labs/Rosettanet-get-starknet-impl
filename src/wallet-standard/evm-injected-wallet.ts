@@ -57,9 +57,9 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
         console.warn('Unexpected accounts type:', accounts);
       }
     });
-    this.injected.on('networkChanged', (chainIdHex: unknown) => {
+    this.injected.on('chainChanged', (chainIdHex: unknown) => {
       if (typeof chainIdHex === 'string') {
-        this.#onNetworkChanged(chainIdHex);
+        this.#onChainChanged(chainIdHex);
       } else {
         console.warn('Unexpected chainIdHex type:', chainIdHex);
       }
@@ -214,7 +214,7 @@ export class EthereumInjectedWallet implements WalletWithEthereumFeatures {
     }
   }
 
-  #onNetworkChanged(chainIdHex: string) {
+  #onChainChanged(chainIdHex: string) {
     if (!chainIdHex || !this.#account) {
       this.#disconnected();
       return;
