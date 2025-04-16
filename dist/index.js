@@ -1,25 +1,29 @@
 "use strict";
 (() => {
+  var __defProp = Object.defineProperty;
+  var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
   // node_modules/mipd/dist/esm/utils.js
   function requestProviders(listener) {
     if (typeof window === "undefined")
       return;
-    const handler = (event) => listener(event.detail);
+    const handler = /* @__PURE__ */ __name((event) => listener(event.detail), "handler");
     window.addEventListener("eip6963:announceProvider", handler);
     window.dispatchEvent(new CustomEvent("eip6963:requestProvider"));
     return () => window.removeEventListener("eip6963:announceProvider", handler);
   }
+  __name(requestProviders, "requestProviders");
 
   // node_modules/mipd/dist/esm/store.js
   function createStore() {
     const listeners = /* @__PURE__ */ new Set();
     let providerDetails = [];
-    const request = () => requestProviders((providerDetail) => {
+    const request = /* @__PURE__ */ __name(() => requestProviders((providerDetail) => {
       if (providerDetails.some(({ info }) => info.uuid === providerDetail.info.uuid))
         return;
       providerDetails = [...providerDetails, providerDetail];
       listeners.forEach((listener) => listener(providerDetails, { added: [providerDetail] }));
-    });
+    }), "request");
     let unwatch = request();
     return {
       _listeners() {
@@ -53,6 +57,7 @@
       }
     };
   }
+  __name(createStore, "createStore");
 
   // src/discovery/evm-wallets.ts
   async function EvmWindowObjectWithStarknetKeys() {
@@ -78,11 +83,13 @@
     }
     return starknetWallets;
   }
+  __name(EvmWindowObjectWithStarknetKeys, "EvmWindowObjectWithStarknetKeys");
   var ETHEREUM_WALLET_KEYS = ["sendAsync", "send", "request"];
   function isEthereumWindowObject(wallet) {
     if (typeof wallet !== "object" || wallet === null) return false;
     return ETHEREUM_WALLET_KEYS.every((key) => key in wallet);
   }
+  __name(isEthereumWindowObject, "isEthereumWindowObject");
 
   // node_modules/@wallet-standard/features/lib/esm/connect.js
   var StandardConnect = "standard:connect";
@@ -114,6 +121,9 @@
         }
       });
       this.injected.on("disconnect", this.#onDisconnect.bind(this));
+    }
+    static {
+      __name(this, "EthereumInjectedWallet");
     }
     #listeners = {};
     #account = null;
@@ -167,7 +177,7 @@
       return [];
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    #connect = async ({ silent } = {}) => {
+    #connect = /* @__PURE__ */ __name(async ({ silent } = {}) => {
       if (!this.#account) {
         try {
           const accounts = await this.injected.request({
@@ -183,12 +193,12 @@
         }
       }
       return { accounts: this.accounts };
-    };
-    #disconnect = async () => {
+    }, "#connect");
+    #disconnect = /* @__PURE__ */ __name(async () => {
       this.#disconnected();
       return;
-    };
-    #on = (event, listener) => {
+    }, "#disconnect");
+    #on = /* @__PURE__ */ __name((event, listener) => {
       if (!this.#listeners[event]) {
         this.#listeners[event] = [];
       }
@@ -196,7 +206,7 @@
       return () => {
         this.#off(event, listener);
       };
-    };
+    }, "#on");
     #emit(event, ...args) {
       if (!this.#listeners[event]) return;
       for (const listener of this.#listeners[event]) {
@@ -274,5 +284,6 @@
     const result = RequiredEthereumFeatures.every((feature) => feature in wallet.features);
     return result;
   }
+  __name(isEVMWallet, "isEVMWallet");
 })();
 //# sourceMappingURL=index.js.map

@@ -1,3 +1,6 @@
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
 // src/discovery/evm-wallets.ts
 import { createStore } from "mipd";
 async function EvmWindowObjectWithStarknetKeys() {
@@ -23,11 +26,13 @@ async function EvmWindowObjectWithStarknetKeys() {
   }
   return starknetWallets;
 }
+__name(EvmWindowObjectWithStarknetKeys, "EvmWindowObjectWithStarknetKeys");
 var ETHEREUM_WALLET_KEYS = ["sendAsync", "send", "request"];
 function isEthereumWindowObject(wallet) {
   if (typeof wallet !== "object" || wallet === null) return false;
   return ETHEREUM_WALLET_KEYS.every((key) => key in wallet);
 }
+__name(isEthereumWindowObject, "isEthereumWindowObject");
 
 // src/wallet-standard/evm-injected-wallet.ts
 import {
@@ -55,6 +60,9 @@ var EthereumInjectedWallet = class {
       }
     });
     this.injected.on("disconnect", this.#onDisconnect.bind(this));
+  }
+  static {
+    __name(this, "EthereumInjectedWallet");
   }
   #listeners = {};
   #account = null;
@@ -108,7 +116,7 @@ var EthereumInjectedWallet = class {
     return [];
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  #connect = async ({ silent } = {}) => {
+  #connect = /* @__PURE__ */ __name(async ({ silent } = {}) => {
     if (!this.#account) {
       try {
         const accounts = await this.injected.request({
@@ -124,12 +132,12 @@ var EthereumInjectedWallet = class {
       }
     }
     return { accounts: this.accounts };
-  };
-  #disconnect = async () => {
+  }, "#connect");
+  #disconnect = /* @__PURE__ */ __name(async () => {
     this.#disconnected();
     return;
-  };
-  #on = (event, listener) => {
+  }, "#disconnect");
+  #on = /* @__PURE__ */ __name((event, listener) => {
     if (!this.#listeners[event]) {
       this.#listeners[event] = [];
     }
@@ -137,7 +145,7 @@ var EthereumInjectedWallet = class {
     return () => {
       this.#off(event, listener);
     };
-  };
+  }, "#on");
   #emit(event, ...args) {
     if (!this.#listeners[event]) return;
     for (const listener of this.#listeners[event]) {
@@ -216,6 +224,7 @@ function isEVMWallet(wallet) {
   const result = RequiredEthereumFeatures.every((feature) => feature in wallet.features);
   return result;
 }
+__name(isEVMWallet, "isEVMWallet");
 export {
   EthereumInjectedWallet,
   EthereumWalletApi,

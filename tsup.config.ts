@@ -9,4 +9,5 @@ export default defineConfig({
   sourcemap: true,
   splitting: false,
   clean: true,
+  keepNames: true,
 });
