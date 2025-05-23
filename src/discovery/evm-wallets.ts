@@ -3,11 +3,11 @@ import { createStore } from 'mipd';
 import { EthereumProvider } from '../types';
 
 export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowObject[]> {
-  let starknetWallets = [];
+  let Wallets = [];
 
-  const store = await createStore();
+  const store = createStore();
 
-  const providers = await store.getProviders();
+  const providers = store.getProviders();
 
   for (const wallet of providers) {
     if (wallet.info.rdns === 'com.bitget.web3') {
@@ -16,7 +16,7 @@ export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowO
       wallet.info.name = 'OKX Wallet via Rosettanet';
     }
 
-    const starkNetWallet = {
+    const walletWithStarknetKeys = {
       ...wallet.provider,
       id: wallet.info.name,
       name: wallet.info.name,
@@ -26,10 +26,10 @@ export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowO
       off: wallet.provider.off,
     };
 
-    starknetWallets.push(starkNetWallet);
+    Wallets.push(walletWithStarknetKeys);
   }
 
-  return starknetWallets;
+  return Wallets;
 }
 
 const ETHEREUM_WALLET_KEYS = ['sendAsync', 'send', 'request'];
