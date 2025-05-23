@@ -56,10 +56,9 @@ export type EthereumRPCParams =
   | { method: 'eth_requestAccounts'; params?: [] }
   | EthereumRPCRequestBase; // fallback for non-strict methods
 
+export const ETHEREUM_CHAIN_PREFIX = 'eip155:';
 
-export const ETHEREUM_CHAIN_PREFIX = "eip155:";
-
-export const STARKNET_CHAIN_PREFIX = "starknet:";
+export const STARKNET_CHAIN_PREFIX = 'starknet:';
 
 export type ChainId = `0x${string}`;
 

@@ -1,11 +1,18 @@
 import type { Wallet } from '@wallet-standard/base';
-import { StandardConnect, StandardDisconnect, StandardEvents, type StandardEventsFeature, type StandardDisconnectFeature, type StandardConnectFeature, } from '@wallet-standard/features';
+import {
+  StandardConnect,
+  StandardDisconnect,
+  StandardEvents,
+  type StandardEventsFeature,
+  type StandardDisconnectFeature,
+  type StandardConnectFeature,
+} from '@wallet-standard/features';
 import { RequestFn } from '@starknet-io/types-js';
 import { WalletWithFeatures } from '@wallet-standard/base';
 
-export const StarknetWalletApi = "starknet:walletApi"
+export const StarknetWalletApi = 'starknet:walletApi';
 
-export type StarknetWalletApiVersion = "1.0.0"
+export type StarknetWalletApiVersion = '1.0.0';
 
 export type StarknetWalletRequestFeature = {
   readonly [StarknetWalletApi]: {

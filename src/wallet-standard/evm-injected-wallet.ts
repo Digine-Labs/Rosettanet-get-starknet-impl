@@ -7,10 +7,20 @@ import {
   StandardEvents,
   type StandardEventsOnMethod,
   type StandardEventsNames,
-  type StandardEventsListeners
+  type StandardEventsListeners,
 } from '@wallet-standard/features';
-import { RequestFn, StarknetWindowObject, RpcTypeToMessageMap, RpcMessage, RequestFnCall } from '@starknet-io/types-js';
-import { EthereumWalletWithStarknetFeatures, StarknetFeatures, StarknetWalletApi } from './features';
+import {
+  RequestFn,
+  StarknetWindowObject,
+  RpcTypeToMessageMap,
+  RpcMessage,
+  RequestFnCall,
+} from '@starknet-io/types-js';
+import {
+  EthereumWalletWithStarknetFeatures,
+  StarknetFeatures,
+  StarknetWalletApi,
+} from './features';
 import { StarknetChain, EthereumChain } from '../types';
 
 const walletToEthereumRpcMap: Record<keyof RpcTypeToMessageMap, string | undefined> = {
@@ -36,8 +46,8 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
   #account: { address: string; chain: EthereumChain } | null = null;
 
   constructor(private readonly injected: StarknetWindowObject) {
-    this.injected.on("accountsChanged", this.#onAccountsChanged.bind(this));
-    this.injected.on("networkChanged", this.#onNetworkChanged.bind(this));
+    this.injected.on('accountsChanged', this.#onAccountsChanged.bind(this));
+    this.injected.on('networkChanged', this.#onNetworkChanged.bind(this));
   }
 
   get version() {
@@ -67,7 +77,7 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
         on: this.#on.bind(this),
       },
       [StarknetWalletApi]: {
-        version: "1.0.0" as const,
+        version: '1.0.0' as const,
         request: this.#request.bind(this),
         walletVersion: this.injected.version,
       },
@@ -98,7 +108,7 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
   #connect: StandardConnectMethod = async ({ silent }) => {
     if (!this.#account) {
       const accounts = await this.injected.request({
-        type: "wallet_requestAccounts",
+        type: 'wallet_requestAccounts',
         params: {
           silent_mode: silent,
         },
@@ -144,12 +154,9 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
     }
   }
 
-  #off<E extends StandardEventsNames>(
-    event: E,
-    listener: StandardEventsListeners[E],
-  ): void {
+  #off<E extends StandardEventsNames>(event: E, listener: StandardEventsListeners[E]): void {
     this.#listeners[event] = this.#listeners[event]?.filter(
-      (existingListener) => listener !== existingListener,
+      (existingListener) => listener !== existingListener
     );
   }
 
@@ -232,7 +239,7 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
 
   async #getEthereumChain(): Promise<EthereumChain> {
     const chainIdHex = await this.injected.request({
-      type: "wallet_requestChainId",
+      type: 'wallet_requestChainId',
     });
     // Convert hex to decimal
     const chainId = Number.parseInt(chainIdHex, 16).toString();
