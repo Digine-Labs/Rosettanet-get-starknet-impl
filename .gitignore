@@ -5,7 +5,6 @@
 .eslintcache
 .vscode
 .idea
-dist
 coverage
 coverage-ts
 node_modules
