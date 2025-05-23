@@ -105,13 +105,10 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
     return [];
   }
 
-  #connect: StandardConnectMethod = async ({ silent }) => {
+  #connect: StandardConnectMethod = async () => {
     if (!this.#account) {
       const accounts = await this.injected.request({
         type: 'wallet_requestAccounts',
-        params: {
-          silent_mode: silent,
-        },
       });
 
       // TODO(fra): maybe we should throw an error here?
