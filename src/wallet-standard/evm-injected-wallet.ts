@@ -22,6 +22,8 @@ import {
   StarknetWalletApi,
 } from './features';
 import { StarknetChain, EthereumChain } from '../types';
+import { hash } from 'starknet';
+import { prepareMulticallCalldata } from 'rosettanet';
 
 const walletToEthereumRpcMap: Record<keyof RpcTypeToMessageMap, string | undefined> = {
   wallet_getPermissions: undefined,
@@ -33,7 +35,7 @@ const walletToEthereumRpcMap: Record<keyof RpcTypeToMessageMap, string | undefin
   wallet_deploymentData: undefined,
   wallet_addInvokeTransaction: 'eth_sendTransaction',
   wallet_addDeclareTransaction: undefined,
-  wallet_signTypedData: 'eth_signTypedData',
+  wallet_signTypedData: 'eth_signTypedData_v4',
   wallet_supportedSpecs: undefined,
   wallet_supportedWalletApi: undefined,
 };
@@ -111,7 +113,6 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
         type: 'wallet_requestAccounts',
       });
 
-      // TODO(fra): maybe we should throw an error here?
       // User rejected the request.
       if (accounts.length === 0) {
         return { accounts: [] };
@@ -224,10 +225,53 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
       throw new Error(`Unsupported request type: ${call.type}`);
     }
 
+    if (mappedMethod === 'eth_sendTransaction' && call.params) {
+      if (Array.isArray(call.params) === false) {
+        throw new Error('Invalid calls parameter. Expected an array of calls.');
+      }
+
+      const arrayCalls: [string, string, string][] = call.params.map((item) => [
+        item.contractAddress,
+        item.entrypoint,
+        item.calldata,
+      ]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const txCalls = [].concat(arrayCalls as any).map((it) => {
+        const entryPointValue = it[1] as string;
+        const entryPoint = entryPointValue.startsWith('0x')
+          ? entryPointValue
+          : hash.getSelectorFromName(entryPointValue);
+
+        return {
+          contract_address: it[0],
+          entry_point: entryPoint,
+          calldata: it[2],
+        };
+      });
+
+      const params = {
+        calls: txCalls,
+      };
+
+      const txData = prepareMulticallCalldata(params.calls);
+
+      const txObject = {
+        from: this.#account?.address,
+        to: '0x0000000000000000000000004645415455524553',
+        data: txData,
+        value: '0x0',
+      };
+
+      const ethPayload = {
+        method: mappedMethod,
+        params: [txObject]
+      };
+
+      return (this.injected.request as any)(ethPayload);
+    }
+
     const ethPayload = {
       method: mappedMethod,
-      // Ethereum tarafı params dizisi bekleyebilir, ama çoğu method tek obje alır.
-      // Örn: eth_requestAccounts → params: undefined
       params: call.params ? [call.params] : [],
     };
 

@@ -61,6 +61,8 @@ function isEVMWallet(wallet) {
 __name(isEVMWallet, "isEVMWallet");
 
 // src/wallet-standard/evm-injected-wallet.ts
+import { hash } from "starknet";
+import { prepareMulticallCalldata } from "rosettanet";
 var walletToEthereumRpcMap = {
   wallet_getPermissions: void 0,
   wallet_requestAccounts: "eth_requestAccounts",
@@ -71,7 +73,7 @@ var walletToEthereumRpcMap = {
   wallet_deploymentData: void 0,
   wallet_addInvokeTransaction: "eth_sendTransaction",
   wallet_addDeclareTransaction: void 0,
-  wallet_signTypedData: "eth_signTypedData",
+  wallet_signTypedData: "eth_signTypedData_v4",
   wallet_supportedSpecs: void 0,
   wallet_supportedWalletApi: void 0
 };
@@ -217,10 +219,42 @@ var EthereumInjectedWallet = class {
     if (!mappedMethod) {
       throw new Error(`Unsupported request type: ${call.type}`);
     }
+    if (mappedMethod === "eth_sendTransaction" && call.params) {
+      if (Array.isArray(call.params) === false) {
+        throw new Error("Invalid calls parameter. Expected an array of calls.");
+      }
+      const arrayCalls = call.params.map((item) => [
+        item.contractAddress,
+        item.entrypoint,
+        item.calldata
+      ]);
+      const txCalls = [].concat(arrayCalls).map((it) => {
+        const entryPointValue = it[1];
+        const entryPoint = entryPointValue.startsWith("0x") ? entryPointValue : hash.getSelectorFromName(entryPointValue);
+        return {
+          contract_address: it[0],
+          entry_point: entryPoint,
+          calldata: it[2]
+        };
+      });
+      const params = {
+        calls: txCalls
+      };
+      const txData = prepareMulticallCalldata(params.calls);
+      const txObject = {
+        from: this.#account?.address,
+        to: "0x0000000000000000000000004645415455524553",
+        data: txData,
+        value: "0x0"
+      };
+      const ethPayload2 = {
+        method: mappedMethod,
+        params: [txObject]
+      };
+      return this.injected.request(ethPayload2);
+    }
     const ethPayload = {
       method: mappedMethod,
-      // Ethereum tarafı params dizisi bekleyebilir, ama çoğu method tek obje alır.
-      // Örn: eth_requestAccounts → params: undefined
       params: call.params ? [call.params] : []
     };
     return this.injected.request(ethPayload);
