@@ -264,7 +264,7 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
 
       const ethPayload = {
         method: mappedMethod,
-        params: [txObject]
+        params: [txObject],
       };
 
       return (this.injected.request as any)(ethPayload);
