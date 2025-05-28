@@ -10,7 +10,6 @@ export async function EvmWindowObjectWithStarknetKeys() {
 
   const providers = store.getProviders();
 
-
   for (const wallet of providers) {
     if (wallet.info.rdns === 'com.bitget.web3') {
       wallet.info.name = 'Bitget Wallet via Rosettanet';
@@ -23,7 +22,7 @@ export async function EvmWindowObjectWithStarknetKeys() {
       id: wallet.info.name,
       name: wallet.info.name,
       icon: wallet.info.icon,
-      version: "1.0.0",
+      version: '1.0.0',
       on: wallet.provider.on,
       off: wallet.provider.removeListener,
     } as StarknetWindowObject;
