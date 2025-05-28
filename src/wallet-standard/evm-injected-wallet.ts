@@ -1,4 +1,4 @@
-import type { Wallet, WalletAccount, WalletWithFeatures } from '@wallet-standard/base';
+import type { Wallet, WalletAccount } from '@wallet-standard/base';
 import {
   StandardConnect,
   type StandardConnectMethod,
@@ -10,7 +10,6 @@ import {
   type StandardEventsListeners,
 } from '@wallet-standard/features';
 import {
-  RequestFn,
   StarknetWindowObject,
   RpcTypeToMessageMap,
   RpcMessage,
@@ -21,9 +20,10 @@ import {
   StarknetFeatures,
   StarknetWalletApi,
 } from './features';
-import { StarknetChain, EthereumChain } from '../types';
+import { EthereumChain } from '../types';
 import { hash } from 'starknet';
 import { prepareMulticallCalldata } from 'rosettanet';
+import { validateCallParams } from '../utils/validateCallParams';
 
 const walletToEthereumRpcMap: Record<keyof RpcTypeToMessageMap, string | undefined> = {
   wallet_getPermissions: undefined,
@@ -109,7 +109,7 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
 
   #connect: StandardConnectMethod = async () => {
     if (!this.#account) {
-      const accounts = await this.injected.request({
+      const accounts = await this.#request({
         type: 'wallet_requestAccounts',
       });
 
@@ -226,11 +226,13 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
     }
 
     if (mappedMethod === 'eth_sendTransaction' && call.params) {
-      if (Array.isArray(call.params) === false) {
-        throw new Error('Invalid calls parameter. Expected an array of calls.');
+      if (validateCallParams(call.params) === false) {
+        throw new Error(
+          'Invalid call parameter. Expected an array of objects. Rosettanet only supports multicall.'
+        );
       }
 
-      const arrayCalls: [string, string, string][] = call.params.map((item) => [
+      const arrayCalls: [string, string, string[]][] = call.params.map((item) => [
         item.contractAddress,
         item.entrypoint,
         item.calldata,
@@ -266,20 +268,18 @@ export class EthereumInjectedWallet implements EthereumWalletWithStarknetFeature
         method: mappedMethod,
         params: [txObject],
       };
-
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (this.injected.request as any)(ethPayload);
     }
-
-    const ethPayload = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (this.injected.request as any)({
       method: mappedMethod,
       params: call.params ? [call.params] : [],
-    };
-
-    return (this.injected.request as any)(ethPayload);
+    });
   };
 
   async #getEthereumChain(): Promise<EthereumChain> {
-    const chainIdHex = await this.injected.request({
+    const chainIdHex = await this.#request({
       type: 'wallet_requestChainId',
     });
     // Convert hex to decimal

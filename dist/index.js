@@ -3367,38 +3367,6 @@
   }
   __name(createStore, "createStore");
 
-  // src/discovery/evm-wallets.ts
-  async function EvmWindowObjectWithStarknetKeys() {
-    let Wallets = [];
-    const store = createStore();
-    const providers = store.getProviders();
-    for (const wallet of providers) {
-      if (wallet.info.rdns === "com.bitget.web3") {
-        wallet.info.name = "Bitget Wallet via Rosettanet";
-      } else if (wallet.info.rdns === "com.okex.wallet") {
-        wallet.info.name = "OKX Wallet via Rosettanet";
-      }
-      const walletWithStarknetKeys = {
-        ...wallet.provider,
-        id: wallet.info.name,
-        name: wallet.info.name,
-        icon: wallet.info.icon,
-        version: wallet.info.icon,
-        on: wallet.provider.on,
-        off: wallet.provider.off
-      };
-      Wallets.push(walletWithStarknetKeys);
-    }
-    return Wallets;
-  }
-  __name(EvmWindowObjectWithStarknetKeys, "EvmWindowObjectWithStarknetKeys");
-  var ETHEREUM_WALLET_KEYS = ["sendAsync", "send", "request"];
-  function isEthereumWindowObject(wallet) {
-    if (typeof wallet !== "object" || wallet === null) return false;
-    return ETHEREUM_WALLET_KEYS.every((key) => key in wallet);
-  }
-  __name(isEthereumWindowObject, "isEthereumWindowObject");
-
   // node_modules/@wallet-standard/features/lib/esm/connect.js
   var StandardConnect = "standard:connect";
 
@@ -21896,6 +21864,13 @@ ${parameter}`);
   }
   __name(wireEncodeByteArray, "wireEncodeByteArray");
 
+  // src/utils/validateCallParams.ts
+  var validateCallParams = /* @__PURE__ */ __name((value) => {
+    return Array.isArray(value) && value.every(
+      (item) => typeof item === "object" && item !== null && !Array.isArray(item) && "contractAddress" in item && "entrypoint" in item && "calldata" in item
+    );
+  }, "validateCallParams");
+
   // src/wallet-standard/evm-injected-wallet.ts
   var walletToEthereumRpcMap = {
     wallet_getPermissions: void 0,
@@ -21973,7 +21948,7 @@ ${parameter}`);
     }
     #connect = /* @__PURE__ */ __name(async () => {
       if (!this.#account) {
-        const accounts = await this.injected.request({
+        const accounts = await this.#request({
           type: "wallet_requestAccounts"
         });
         if (accounts.length === 0) {
@@ -22054,8 +22029,8 @@ ${parameter}`);
         throw new Error(`Unsupported request type: ${call.type}`);
       }
       if (mappedMethod === "eth_sendTransaction" && call.params) {
-        if (Array.isArray(call.params) === false) {
-          throw new Error("Invalid calls parameter. Expected an array of calls.");
+        if (validateCallParams(call.params) === false) {
+          throw new Error("Invalid call parameter. Expected an array of objects. Rosettanet only supports multicall.");
         }
         const arrayCalls = call.params.map((item) => [
           item.contractAddress,
@@ -22081,20 +22056,16 @@ ${parameter}`);
           data: txData,
           value: "0x0"
         };
-        const ethPayload2 = {
+        const ethPayload = {
           method: mappedMethod,
           params: [txObject]
         };
-        return this.injected.request(ethPayload2);
+        return this.injected.request(ethPayload);
       }
-      const ethPayload = {
-        method: mappedMethod,
-        params: call.params ? [call.params] : []
-      };
-      return this.injected.request(ethPayload);
+      return this.injected.request({ method: mappedMethod, params: call.params ? [call.params] : [] });
     }, "#request");
     async #getEthereumChain() {
-      const chainIdHex = await this.injected.request({
+      const chainIdHex = await this.#request({
         type: "wallet_requestChainId"
       });
       const chainId = Number.parseInt(chainIdHex, 16).toString();
@@ -22105,6 +22076,38 @@ ${parameter}`);
       return chain2;
     }
   };
+
+  // src/discovery/evm-wallets.ts
+  async function EvmWindowObjectWithStarknetKeys() {
+    let Wallets = [];
+    const store = createStore();
+    const providers = store.getProviders();
+    for (const wallet of providers) {
+      if (wallet.info.rdns === "com.bitget.web3") {
+        wallet.info.name = "Bitget Wallet via Rosettanet";
+      } else if (wallet.info.rdns === "com.okex.wallet") {
+        wallet.info.name = "OKX Wallet via Rosettanet";
+      }
+      const walletWithStarknetKeys = {
+        ...wallet.provider,
+        id: wallet.info.name,
+        name: wallet.info.name,
+        icon: wallet.info.icon,
+        version: "1.0.0",
+        on: wallet.provider.on,
+        off: wallet.provider.removeListener
+      };
+      Wallets.push(new EthereumInjectedWallet(walletWithStarknetKeys));
+    }
+    return Wallets;
+  }
+  __name(EvmWindowObjectWithStarknetKeys, "EvmWindowObjectWithStarknetKeys");
+  var ETHEREUM_WALLET_KEYS = ["sendAsync", "send", "request"];
+  function isEthereumWindowObject(wallet) {
+    if (typeof wallet !== "object" || wallet === null) return false;
+    return ETHEREUM_WALLET_KEYS.every((key) => key in wallet);
+  }
+  __name(isEthereumWindowObject, "isEthereumWindowObject");
 
   // src/types/index.ts
   var ETHEREUM_CHAIN_PREFIX = "eip155:";
@@ -22145,101 +22148,8 @@ tough-cookie/lib/pubsuffix-psl.js:
    *)
 
 tough-cookie/lib/store.js:
-  (*!
-   * Copyright (c) 2015, Salesforce.com, Inc.
-   * All rights reserved.
-   *
-   * Redistribution and use in source and binary forms, with or without
-   * modification, are permitted provided that the following conditions are met:
-   *
-   * 1. Redistributions of source code must retain the above copyright notice,
-   * this list of conditions and the following disclaimer.
-   *
-   * 2. Redistributions in binary form must reproduce the above copyright notice,
-   * this list of conditions and the following disclaimer in the documentation
-   * and/or other materials provided with the distribution.
-   *
-   * 3. Neither the name of Salesforce.com nor the names of its contributors may
-   * be used to endorse or promote products derived from this software without
-   * specific prior written permission.
-   *
-   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-   * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   * POSSIBILITY OF SUCH DAMAGE.
-   *)
-
 tough-cookie/lib/permuteDomain.js:
-  (*!
-   * Copyright (c) 2015, Salesforce.com, Inc.
-   * All rights reserved.
-   *
-   * Redistribution and use in source and binary forms, with or without
-   * modification, are permitted provided that the following conditions are met:
-   *
-   * 1. Redistributions of source code must retain the above copyright notice,
-   * this list of conditions and the following disclaimer.
-   *
-   * 2. Redistributions in binary form must reproduce the above copyright notice,
-   * this list of conditions and the following disclaimer in the documentation
-   * and/or other materials provided with the distribution.
-   *
-   * 3. Neither the name of Salesforce.com nor the names of its contributors may
-   * be used to endorse or promote products derived from this software without
-   * specific prior written permission.
-   *
-   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-   * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   * POSSIBILITY OF SUCH DAMAGE.
-   *)
-
 tough-cookie/lib/pathMatch.js:
-  (*!
-   * Copyright (c) 2015, Salesforce.com, Inc.
-   * All rights reserved.
-   *
-   * Redistribution and use in source and binary forms, with or without
-   * modification, are permitted provided that the following conditions are met:
-   *
-   * 1. Redistributions of source code must retain the above copyright notice,
-   * this list of conditions and the following disclaimer.
-   *
-   * 2. Redistributions in binary form must reproduce the above copyright notice,
-   * this list of conditions and the following disclaimer in the documentation
-   * and/or other materials provided with the distribution.
-   *
-   * 3. Neither the name of Salesforce.com nor the names of its contributors may
-   * be used to endorse or promote products derived from this software without
-   * specific prior written permission.
-   *
-   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-   * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   * POSSIBILITY OF SUCH DAMAGE.
-   *)
-
 tough-cookie/lib/memstore.js:
   (*!
    * Copyright (c) 2015, Salesforce.com, Inc.
@@ -22308,57 +22218,29 @@ tough-cookie/lib/cookie.js:
   (*! scure-base - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
 @noble/curves/esm/abstract/utils.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
-@noble/hashes/esm/utils.js:
-  (*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
-@noble/hashes/esm/utils.js:
-  (*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
 @noble/curves/esm/abstract/utils.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
 @noble/curves/esm/abstract/modular.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
 @noble/curves/esm/abstract/poseidon.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
 @noble/curves/esm/abstract/curve.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
 @noble/curves/esm/abstract/weierstrass.js:
+@noble/curves/esm/_shortw_utils.js:
+@noble/curves/esm/abstract/modular.js:
+@noble/curves/esm/abstract/poseidon.js:
+@noble/curves/esm/abstract/curve.js:
+@noble/curves/esm/abstract/weierstrass.js:
+@noble/curves/esm/_shortw_utils.js:
+@noble/curves/esm/secp256k1.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
 @noble/hashes/esm/utils.js:
+@noble/hashes/esm/utils.js:
+@noble/hashes/esm/utils.js:
   (*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
-@noble/curves/esm/_shortw_utils.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
 @scure/starknet/lib/esm/index.js:
   (*! scure-starknet - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
-@noble/curves/esm/abstract/modular.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
-@noble/curves/esm/abstract/poseidon.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
-@noble/curves/esm/abstract/curve.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
-@noble/curves/esm/abstract/weierstrass.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
 pako/dist/pako.esm.mjs:
   (*! pako 2.1.0 https://github.com/nodeca/pako @license (MIT AND Zlib) *)
-
-@noble/curves/esm/_shortw_utils.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-
-@noble/curves/esm/secp256k1.js:
-  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
 //# sourceMappingURL=index.js.map

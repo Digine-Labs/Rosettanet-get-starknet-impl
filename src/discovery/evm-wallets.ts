@@ -1,13 +1,15 @@
 import { StarknetWindowObject } from '@starknet-io/types-js';
 import { createStore } from 'mipd';
 import { EthereumProvider } from '../types';
+import { EthereumInjectedWallet } from '../wallet-standard/evm-injected-wallet';
 
-export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowObject[]> {
+export async function EvmWindowObjectWithStarknetKeys() {
   let Wallets = [];
 
   const store = createStore();
 
   const providers = store.getProviders();
+
 
   for (const wallet of providers) {
     if (wallet.info.rdns === 'com.bitget.web3') {
@@ -21,12 +23,12 @@ export async function EvmWindowObjectWithStarknetKeys(): Promise<StarknetWindowO
       id: wallet.info.name,
       name: wallet.info.name,
       icon: wallet.info.icon,
-      version: wallet.info.icon,
+      version: "1.0.0",
       on: wallet.provider.on,
-      off: wallet.provider.off,
-    };
+      off: wallet.provider.removeListener,
+    } as StarknetWindowObject;
 
-    Wallets.push(walletWithStarknetKeys);
+    Wallets.push(new EthereumInjectedWallet(walletWithStarknetKeys));
   }
 
   return Wallets;
