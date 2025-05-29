@@ -5,10 +5,10 @@
 .eslintcache
 .vscode
 .idea
-dist
 coverage
 coverage-ts
 node_modules
 npm-debug.log
 package
 yarn.lock
+package-lock.json

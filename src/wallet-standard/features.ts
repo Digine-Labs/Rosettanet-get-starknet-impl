@@ -1,19 +1,41 @@
 import type { Wallet } from '@wallet-standard/base';
-import { StandardConnect, StandardDisconnect, StandardEvents } from '@wallet-standard/features';
 import {
-  EthereumWalletApi,
-  EthereumFeatures,
-  WalletWithEthereumFeatures,
-} from './evm-injected-wallet';
-
-const RequiredEthereumFeatures = [
-  EthereumWalletApi,
   StandardConnect,
   StandardDisconnect,
   StandardEvents,
-] as const satisfies (keyof EthereumFeatures)[];
+  type StandardEventsFeature,
+  type StandardDisconnectFeature,
+  type StandardConnectFeature,
+} from '@wallet-standard/features';
+import { RequestFn } from '@starknet-io/types-js';
+import { WalletWithFeatures } from '@wallet-standard/base';
 
-export function isEVMWallet(wallet: Wallet): wallet is WalletWithEthereumFeatures {
-  const result = RequiredEthereumFeatures.every((feature) => feature in wallet.features);
+export const StarknetWalletApi = 'starknet:walletApi';
+
+export type StarknetWalletApiVersion = '1.0.0';
+
+export type StarknetWalletRequestFeature = {
+  readonly [StarknetWalletApi]: {
+    readonly version: StarknetWalletApiVersion;
+    readonly request: RequestFn;
+    readonly walletVersion: string;
+  };
+};
+
+export type StarknetFeatures = StarknetWalletRequestFeature &
+  StandardConnectFeature &
+  StandardDisconnectFeature &
+  StandardEventsFeature;
+export type EthereumWalletWithStarknetFeatures = WalletWithFeatures<StarknetFeatures>;
+
+const RequiredStarknetFeatures = [
+  StarknetWalletApi,
+  StandardConnect,
+  StandardDisconnect,
+  StandardEvents,
+] as const satisfies (keyof StarknetFeatures)[];
+
+export function isEVMWallet(wallet: Wallet): wallet is EthereumWalletWithStarknetFeatures {
+  const result = RequiredStarknetFeatures.every((feature) => feature in wallet.features);
   return result;
 }
