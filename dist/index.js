@@ -21920,16 +21920,10 @@ ${parameter}`);
           version: "1.0.0",
           on: this.#on.bind(this)
         },
-<<<<<<< HEAD
-        [EthereumWalletApi]: {
-          version: "1.0.0",
-          request: this.#request.bind(this)
-=======
         [StarknetWalletApi]: {
           version: "1.0.0",
           request: this.#request.bind(this),
           walletVersion: this.injected.version
->>>>>>> origin/eth-to-strk-wallet-features
         }
       };
     }
@@ -21952,23 +21946,6 @@ ${parameter}`);
       }
       return [];
     }
-<<<<<<< HEAD
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    #connect = /* @__PURE__ */ __name(async ({ silent } = {}) => {
-      if (!this.#account) {
-        try {
-          const accounts = await this.injected.request({
-            method: "eth_requestAccounts"
-          });
-          if (!accounts || accounts.length === 0) {
-            return { accounts: [] };
-          }
-          await this.#onAccountsChanged(accounts);
-        } catch (error) {
-          console.error("Connection error:", error);
-          return { accounts: [] };
-        }
-=======
     #connect = /* @__PURE__ */ __name(async () => {
       if (!this.#account) {
         const accounts = await this.#request({
@@ -21978,7 +21955,6 @@ ${parameter}`);
           return { accounts: [] };
         }
         await this.#updateAccount(accounts);
->>>>>>> origin/eth-to-strk-wallet-features
       }
       return { accounts: this.accounts };
     }, "#connect");
@@ -21991,13 +21967,7 @@ ${parameter}`);
         this.#listeners[event] = [];
       }
       this.#listeners[event].push(listener);
-<<<<<<< HEAD
-      return () => {
-        this.#off(event, listener);
-      };
-=======
       return () => this.#off(event, listener);
->>>>>>> origin/eth-to-strk-wallet-features
     }, "#on");
     #emit(event, ...args) {
       if (!this.#listeners[event]) return;
@@ -22006,15 +21976,9 @@ ${parameter}`);
       }
     }
     #off(event, listener) {
-<<<<<<< HEAD
-      const arr = this.#listeners[event];
-      if (!arr) return;
-      this.#listeners[event] = arr.filter((l) => l !== listener);
-=======
       this.#listeners[event] = this.#listeners[event]?.filter(
         (existingListener) => listener !== existingListener
       );
->>>>>>> origin/eth-to-strk-wallet-features
     }
     #disconnected() {
       if (this.#account) {
@@ -22027,74 +21991,17 @@ ${parameter}`);
         this.#disconnected();
         return;
       }
-<<<<<<< HEAD
-      const [account] = accounts;
-      if (this.#account?.chain) {
-        this.#account.address = account;
-        this.#emit("change", { accounts: this.accounts });
-      } else {
-        const chain = await this.#getEthereumChain();
-        this.#account = { address: account, chain };
-        this.#emit("change", { accounts: this.accounts });
-      }
-    }
-    #onChainChanged(chainIdHex) {
-=======
       if (!this.#account) {
         return;
       }
       await this.#updateAccount(accounts);
     }
     #onNetworkChanged(chainIdHex) {
->>>>>>> origin/eth-to-strk-wallet-features
       if (!chainIdHex || !this.#account) {
         this.#disconnected();
         return;
       }
       const chainId = Number.parseInt(chainIdHex, 16).toString();
-<<<<<<< HEAD
-      const chain = `eip155:${chainId}`;
-      if (!this.chains.includes(chain)) {
-        console.warn("Switched to unsupported chain:", chain);
-      }
-      this.#account.chain = chain;
-      this.#emit("change", { accounts: this.accounts });
-    }
-    #onDisconnect() {
-      this.#disconnected();
-    }
-    #request(args) {
-      return this.injected.request(args);
-    }
-    async #getEthereumChain() {
-      try {
-        const chainIdHex = await this.injected.request({
-          method: "eth_chainId"
-        });
-        const chainId = Number.parseInt(chainIdHex, 16).toString();
-        const chain = `eip155:${chainId}`;
-        return chain;
-      } catch (error) {
-        console.error("Failed to get chain ID:", error);
-        throw new Error("Invalid Ethereum chain");
-      }
-    }
-  };
-
-  // src/wallet-standard/features.ts
-  var RequiredEthereumFeatures = [
-    EthereumWalletApi,
-    StandardConnect,
-    StandardDisconnect,
-    StandardEvents
-  ];
-  function isEVMWallet(wallet) {
-    const result = RequiredEthereumFeatures.every((feature) => feature in wallet.features);
-    return result;
-  }
-  __name(isEVMWallet, "isEVMWallet");
-})();
-=======
       const chain2 = `eip155:${chainId}`;
       if (!this.chains.includes(chain2)) {
         console.warn("Switched to unsupported chain:", chain2);
@@ -22246,8 +22153,101 @@ tough-cookie/lib/pubsuffix-psl.js:
    *)
 
 tough-cookie/lib/store.js:
+  (*!
+   * Copyright (c) 2015, Salesforce.com, Inc.
+   * All rights reserved.
+   *
+   * Redistribution and use in source and binary forms, with or without
+   * modification, are permitted provided that the following conditions are met:
+   *
+   * 1. Redistributions of source code must retain the above copyright notice,
+   * this list of conditions and the following disclaimer.
+   *
+   * 2. Redistributions in binary form must reproduce the above copyright notice,
+   * this list of conditions and the following disclaimer in the documentation
+   * and/or other materials provided with the distribution.
+   *
+   * 3. Neither the name of Salesforce.com nor the names of its contributors may
+   * be used to endorse or promote products derived from this software without
+   * specific prior written permission.
+   *
+   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+   * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   * POSSIBILITY OF SUCH DAMAGE.
+   *)
+
 tough-cookie/lib/permuteDomain.js:
+  (*!
+   * Copyright (c) 2015, Salesforce.com, Inc.
+   * All rights reserved.
+   *
+   * Redistribution and use in source and binary forms, with or without
+   * modification, are permitted provided that the following conditions are met:
+   *
+   * 1. Redistributions of source code must retain the above copyright notice,
+   * this list of conditions and the following disclaimer.
+   *
+   * 2. Redistributions in binary form must reproduce the above copyright notice,
+   * this list of conditions and the following disclaimer in the documentation
+   * and/or other materials provided with the distribution.
+   *
+   * 3. Neither the name of Salesforce.com nor the names of its contributors may
+   * be used to endorse or promote products derived from this software without
+   * specific prior written permission.
+   *
+   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+   * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   * POSSIBILITY OF SUCH DAMAGE.
+   *)
+
 tough-cookie/lib/pathMatch.js:
+  (*!
+   * Copyright (c) 2015, Salesforce.com, Inc.
+   * All rights reserved.
+   *
+   * Redistribution and use in source and binary forms, with or without
+   * modification, are permitted provided that the following conditions are met:
+   *
+   * 1. Redistributions of source code must retain the above copyright notice,
+   * this list of conditions and the following disclaimer.
+   *
+   * 2. Redistributions in binary form must reproduce the above copyright notice,
+   * this list of conditions and the following disclaimer in the documentation
+   * and/or other materials provided with the distribution.
+   *
+   * 3. Neither the name of Salesforce.com nor the names of its contributors may
+   * be used to endorse or promote products derived from this software without
+   * specific prior written permission.
+   *
+   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+   * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   * POSSIBILITY OF SUCH DAMAGE.
+   *)
+
 tough-cookie/lib/memstore.js:
   (*!
    * Copyright (c) 2015, Salesforce.com, Inc.
@@ -22316,30 +22316,57 @@ tough-cookie/lib/cookie.js:
   (*! scure-base - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
 @noble/curves/esm/abstract/utils.js:
-@noble/curves/esm/abstract/utils.js:
-@noble/curves/esm/abstract/modular.js:
-@noble/curves/esm/abstract/poseidon.js:
-@noble/curves/esm/abstract/curve.js:
-@noble/curves/esm/abstract/weierstrass.js:
-@noble/curves/esm/_shortw_utils.js:
-@noble/curves/esm/abstract/modular.js:
-@noble/curves/esm/abstract/poseidon.js:
-@noble/curves/esm/abstract/curve.js:
-@noble/curves/esm/abstract/weierstrass.js:
-@noble/curves/esm/_shortw_utils.js:
-@noble/curves/esm/secp256k1.js:
   (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
 @noble/hashes/esm/utils.js:
-@noble/hashes/esm/utils.js:
+  (*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
 @noble/hashes/esm/utils.js:
   (*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/utils.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/modular.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/poseidon.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/curve.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/weierstrass.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/hashes/esm/utils.js:
+  (*! noble-hashes - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/_shortw_utils.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
 @scure/starknet/lib/esm/index.js:
   (*! scure-starknet - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 
+@noble/curves/esm/abstract/modular.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/poseidon.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/curve.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/abstract/weierstrass.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
 pako/dist/pako.esm.mjs:
   (*! pako 2.1.0 https://github.com/nodeca/pako @license (MIT AND Zlib) *)
+
+@noble/curves/esm/_shortw_utils.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
+
+@noble/curves/esm/secp256k1.js:
+  (*! noble-curves - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
 */
->>>>>>> origin/eth-to-strk-wallet-features
 //# sourceMappingURL=index.js.map
