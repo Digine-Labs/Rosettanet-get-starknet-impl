@@ -22030,7 +22030,9 @@ ${parameter}`);
       }
       if (mappedMethod === "eth_sendTransaction" && call.params) {
         if (validateCallParams(call.params) === false) {
-          throw new Error("Invalid call parameter. Expected an array of objects. Rosettanet only supports multicall.");
+          throw new Error(
+            "Invalid call parameter. Expected an array of objects. Rosettanet only supports multicall."
+          );
         }
         const arrayCalls = call.params.map((item) => [
           item.contractAddress,
@@ -22062,7 +22064,10 @@ ${parameter}`);
         };
         return this.injected.request(ethPayload);
       }
-      return this.injected.request({ method: mappedMethod, params: call.params ? [call.params] : [] });
+      return this.injected.request({
+        method: mappedMethod,
+        params: call.params ? [call.params] : []
+      });
     }, "#request");
     async #getEthereumChain() {
       const chainIdHex = await this.#request({
@@ -22078,7 +22083,7 @@ ${parameter}`);
   };
 
   // src/discovery/evm-wallets.ts
-  async function EvmWindowObjectWithStarknetKeys() {
+  async function EvmWalletsWithStarknetFeatures() {
     let Wallets = [];
     const store = createStore();
     const providers = store.getProviders();
@@ -22101,7 +22106,7 @@ ${parameter}`);
     }
     return Wallets;
   }
-  __name(EvmWindowObjectWithStarknetKeys, "EvmWindowObjectWithStarknetKeys");
+  __name(EvmWalletsWithStarknetFeatures, "EvmWalletsWithStarknetFeatures");
   var ETHEREUM_WALLET_KEYS = ["sendAsync", "send", "request"];
   function isEthereumWindowObject(wallet) {
     if (typeof wallet !== "object" || wallet === null) return false;

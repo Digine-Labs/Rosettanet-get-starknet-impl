@@ -3,7 +3,7 @@ import { createStore } from 'mipd';
 import { EthereumProvider } from '../types';
 import { EthereumInjectedWallet } from '../wallet-standard/evm-injected-wallet';
 
-export async function EvmWindowObjectWithStarknetKeys() {
+export async function EvmWalletsWithStarknetFeatures() {
   let Wallets = [];
 
   const store = createStore();
